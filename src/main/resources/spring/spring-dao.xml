@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	                       http://www.springframework.org/schema/beans/spring-beans.xsd
+	                       http://www.springframework.org/schema/context
+	                       http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--1.引入数据库参数文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!--2.数据库连接池配置-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <!--2.1 数据库连接参数配置-->
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <!--2.2 德鲁伊连接池私有属性-->
+        <property name="initialSize" value="${initialSize}"/>
+        <property name="maxActive" value="${maxActive}"/>
+        <property name="minIdle" value="${minIdle}"/>
+    </bean>
+
+    <!--3.配置SqlSessionFactory对象-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--3.1 数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--3.2 全局配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--3.3扫描包,使用类别名-->
+        <property name="typeAliasesPackage" value="com.barm.entity"/>
+        <!--3.4扫描sql配置文件:mapper对应的xml文件-->
+        <property name="mapperLocations" value="classpath:*.xml"/>
+    </bean>
+
+    <!--4.扫描mapper接口包,动态实现Dao接口,注入到Spring容器中-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--4.1 注入sqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--4.2 需要扫描的包-->
+        <property name="basePackage" value="com.barm.mapper"/>
+    </bean>
+</beans>
